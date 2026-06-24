@@ -1,0 +1,61 @@
+Entidades principais
+
+*Barbeiro
+Responsável por autenticação e por receber os agendamentos.
+Atributos:
+id
+name
+user
+pass
+
+*Serviço
+Define o tipo de atendimento disponível.
+Atributos:
+id
+name
+duration
+
+*Agendamento
+Representa um atendimento marcado pelo cliente.
+Atributos:
+barber
+date
+start
+duration
+service
+client
+Cliente
+Embora o projeto ainda não tenha uma entidade explícita separada, o nome do cliente aparece no agendamento.
+Atributos sugeridos:
+id
+name
+
+-------------------------------------------------------------
+
+Modelo mais organizado para o projeto
+Se você quiser evoluir o projeto para uma estrutura mais profissional, eu recomendaria este modelo:
+
+Barbeiro:
+
+id
+nome
+usuario
+senha
+Cliente:
+
+id
+nome
+Serviço:
+
+id
+nome
+duracaoMinutos
+Agendamento:
+
+id
+barbeiroId
+clienteId
+servicoId
+data
+horarioInicio
+status
