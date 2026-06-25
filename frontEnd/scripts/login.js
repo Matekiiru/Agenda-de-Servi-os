@@ -1,23 +1,30 @@
-// barbeiros cadastrados (simulação)
-const barbers = [
-  { id: "1", name: "Mário", user: "mario", pass: "123" },
-  { id: "2", name: "Leandro", user: "leandro", pass: "123" },
-  { id: "3", name: "Cleber", user: "cleber", pass: "123" },
-  { id: "4", name: "João", user: "joao", pass: "123" },
-];
-
-function login() {
+async function login() {
   const user = document.getElementById("user").value;
   const pass = document.getElementById("pass").value;
 
-  const barber = barbers.find((b) => b.user === user && b.pass === pass);
+  try {
+    const response = await fetch("http://localhost:8000/usuarios/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        username: user,
+        password: pass,
+      }),
+    });
 
-  if (barber) {
-    // salva sessão
-    localStorage.setItem("barberLogged", JSON.stringify(barber));
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Login inválido");
+    }
+
+    localStorage.setItem("barberLogged", JSON.stringify(data.barbeiro));
+    localStorage.setItem("accessToken", data.access_token);
 
     window.location.href = "painel.html";
-  } else {
-    alert("Login inválido");
+  } catch (error) {
+    alert(error.message);
   }
 }

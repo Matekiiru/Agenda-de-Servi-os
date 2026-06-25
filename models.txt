@@ -45,11 +45,13 @@ Cliente:
 
 id
 nome
-Serviço:
 
+Serviço:
 id
 nome
 duracaoMinutos
+
+
 Agendamento:
 
 id

@@ -1,7 +1,7 @@
-// pega barbeiro logado
 const barber = JSON.parse(localStorage.getItem("barberLogged"));
+const token = localStorage.getItem("accessToken");
 
-if (!barber) {
+if (!barber || !token) {
   window.location.href = "login.html";
 }
 
@@ -98,6 +98,7 @@ function cancelAppointment(barberId, date, time) {
 // logout
 function logout() {
   localStorage.removeItem("barberLogged");
+  localStorage.removeItem("accessToken");
   window.location.href = "login.html";
 }
 
