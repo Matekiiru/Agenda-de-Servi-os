@@ -1,3 +1,4 @@
+const API_BASE = "http://localhost:8000";
 const barber = JSON.parse(localStorage.getItem("barberLogged"));
 const token = localStorage.getItem("accessToken");
 
@@ -5,20 +6,8 @@ if (!barber || !token) {
   window.location.href = "login.html";
 }
 
-// mostra nome
 document.getElementById("barberName").innerText = `Barbeiro: ${barber.name}`;
 
-// pegar dados atualizados
-function getAppointments() {
-  return JSON.parse(localStorage.getItem("appointments")) || [];
-}
-
-// salvar dados
-function saveAppointments(data) {
-  localStorage.setItem("appointments", JSON.stringify(data));
-}
-
-// calcula horário final (NOVO)
 function calculateEnd(start, duration) {
   const [h, m] = start.split(":").map(Number);
   const date = new Date();
@@ -28,79 +17,93 @@ function calculateEnd(start, duration) {
   return date.toTimeString().slice(0, 5);
 }
 
-function loadAppointments() {
+async function loadAppointments() {
   const date = document.getElementById("date").value;
   const listDiv = document.getElementById("list");
 
   listDiv.innerHTML = "";
 
-  let appointments = getAppointments();
+  try {
+    const params = new URLSearchParams();
+    params.append("barbeiro_id", barber.id);
+    if (date) {
+      params.append("data", date);
+    }
 
-  // filtra por barbeiro
-  let filtered = appointments.filter((app) => app.barber === barber.id);
+    const response = await fetch(
+      `${API_BASE}/agendamentos?${params.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
-  // filtro opcional por data
-  if (date) {
-    filtered = filtered.filter((app) => app.date === date);
+    const appointments = await response.json();
+
+    appointments.sort((a, b) => {
+      const d1 = new Date(`${a.data}T${a.horario_inicio}`);
+      const d2 = new Date(`${b.data}T${b.horario_inicio}`);
+      return d1 - d2;
+    });
+
+    if (appointments.length === 0) {
+      listDiv.innerHTML = "<p class='empty'>Nenhum agendamento</p>";
+      return;
+    }
+
+    appointments.forEach((app) => {
+      const div = document.createElement("div");
+      div.className = "appointment";
+
+      const endTime = calculateEnd(app.horario_inicio, app.duracao);
+
+      div.innerHTML = `
+        <div>
+          <div>👤 ${app.cliente || "Sem nome"}</div>
+          <div>💼 ${app.servico || "Serviço não informado"}</div>
+          <div>📅 ${app.data}</div>
+          <div>⏰ ${app.horario_inicio} - ${endTime}</div>
+        </div>
+        <button onclick="cancelAppointment(${app.id})">
+          Cancelar
+        </button>
+      `;
+
+      listDiv.appendChild(div);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar agendamentos:", error);
+    listDiv.innerHTML = "<p class='empty'>Erro ao carregar agendamentos</p>";
   }
-
-  // ordena por data + horário
-  filtered.sort((a, b) => {
-    const d1 = new Date(`${a.date}T${a.start}`);
-    const d2 = new Date(`${b.date}T${b.start}`);
-    return d1 - d2;
-  });
-
-  if (filtered.length === 0) {
-    listDiv.innerHTML = "<p class='empty'>Nenhum agendamento</p>";
-    return;
-  }
-
-  filtered.forEach((app) => {
-    const div = document.createElement("div");
-    div.className = "appointment";
-
-    const endTime = calculateEnd(app.start, app.duration);
-
-    div.innerHTML = `
-      <div>
-        <div>👤 ${app.client || "Sem nome"}</div>
-        <div>💼 ${app.service || "Serviço não informado"}</div>
-        <div>📅 ${app.date}</div>
-        <div>⏰ ${app.start} - ${endTime}</div>
-      </div>
-      <button onclick="cancelAppointment('${app.barber}', '${app.date}', '${app.start}')">
-        Cancelar
-      </button>
-    `;
-
-    listDiv.appendChild(div);
-  });
 }
 
-// cancelar corretamente
-function cancelAppointment(barberId, date, time) {
+async function cancelAppointment(agendamentoId) {
   if (!confirm("Deseja cancelar este agendamento?")) return;
 
-  let appointments = getAppointments();
+  try {
+    const response = await fetch(`${API_BASE}/agendamentos/${agendamentoId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  const index = appointments.findIndex(
-    (app) => app.barber === barberId && app.date === date && app.start === time,
-  );
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Não foi possível cancelar");
+    }
 
-  if (index !== -1) {
-    appointments.splice(index, 1);
-    saveAppointments(appointments);
-    loadAppointments();
+    await loadAppointments();
+  } catch (error) {
+    alert(error.message);
   }
 }
 
-// logout
 function logout() {
   localStorage.removeItem("barberLogged");
   localStorage.removeItem("accessToken");
   window.location.href = "login.html";
 }
 
-// carrega automaticamente
 loadAppointments();

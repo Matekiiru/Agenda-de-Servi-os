@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.database import Base
 from core.database import motor
 
+from rotas.agendamentos import roteador as agendamentos_roteador
+from rotas.barbeiros import roteador as barbeiros_roteador
 from rotas.saude import roteador as saude_roteador
 from rotas.usuarios import roteador as usuarios_roteador
 
@@ -25,6 +27,8 @@ app.add_middleware(
 )
 app.include_router(saude_roteador)
 app.include_router(usuarios_roteador)
+app.include_router(barbeiros_roteador)
+app.include_router(agendamentos_roteador)
 
 @app.get("/")
 def root():

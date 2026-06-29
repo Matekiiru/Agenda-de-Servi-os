@@ -1,104 +1,163 @@
-// duração dos serviços (em minutos)
+const API_BASE = "http://localhost:8000";
+
 const services = {
   1: { duration: 30, name: "Corte" },
   2: { duration: 60, name: "Corte e Barba" },
   3: { duration: 15, name: "Barba" },
 };
 
-// sempre pega atualizado
-function getAppointments() {
-  return JSON.parse(localStorage.getItem("appointments")) || [];
+async function loadBarbers() {
+  const select = document.getElementById("barber");
+
+  try {
+    const response = await fetch(`${API_BASE}/barbeiros`);
+    const barbers = await response.json();
+
+    select.innerHTML = "";
+
+    if (barbers.length === 0) {
+      select.innerHTML = '<option value="">Nenhum barbeiro cadastrado</option>';
+      return;
+    }
+
+    barbers.forEach((barber) => {
+      const option = document.createElement("option");
+      option.value = barber.id;
+      option.textContent = barber.nome;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar barbeiros:", error);
+    select.innerHTML = '<option value="">Erro ao carregar barbeiros</option>';
+  }
 }
 
-function saveAppointments(data) {
-  localStorage.setItem("appointments", JSON.stringify(data));
-}
-
-function loadAvailability() {
+async function loadAvailability() {
   const barber = document.getElementById("barber").value;
-  const service = document.getElementById("service").value;
+  const serviceId = document.getElementById("service").value;
   const date = document.getElementById("date").value;
+
+  if (!barber) {
+    alert("Escolha um barbeiro");
+    return;
+  }
+
+  if (!serviceId) {
+    alert("Escolha um serviço");
+    return;
+  }
 
   if (!date) {
     alert("Escolha uma data");
     return;
   }
 
-  const { duration, name } = services[service];
+  const { duration, name } = services[serviceId];
 
-  generateSlots(barber, date, duration, name);
+  await generateSlots(barber, date, duration, name, serviceId);
 }
 
-function generateSlots(barber, date, duration, serviceName) {
+async function generateSlots(barber, date, duration, serviceName, serviceId) {
   const slotsDiv = document.getElementById("slots");
   slotsDiv.innerHTML = "";
 
-  const appointments = getAppointments();
+  try {
+    const response = await fetch(
+      `${API_BASE}/agendamentos?barbeiro_id=${barber}&data=${date}`,
+    );
+    const appointments = await response.json();
 
-  const startHour = 9;
-  const endHour = 18;
+    const startHour = 9;
+    const endHour = 18;
 
-  for (let h = startHour; h < endHour; h++) {
-    for (let m of [0, 30]) {
-      let start = new Date(`${date}T${pad(h)}:${pad(m)}:00`);
-      let end = new Date(start.getTime() + duration * 60000);
+    for (let h = startHour; h < endHour; h++) {
+      for (let m of [0, 30]) {
+        const slotStart = `${pad(h)}:${pad(m)}`;
+        const start = new Date(`${date}T${slotStart}:00`);
+        const end = new Date(start.getTime() + duration * 60000);
 
-      // 🚫 bloqueia horários que ultrapassam expediente
-      if (
-        end.getHours() > endHour ||
-        (end.getHours() === endHour && end.getMinutes() > 0)
-      ) {
-        continue;
+        if (
+          end.getHours() > endHour ||
+          (end.getHours() === endHour && end.getMinutes() > 0)
+        ) {
+          continue;
+        }
+
+        const isBusy = appointments.some((app) => {
+          const appStart = new Date(`${app.data}T${app.horario_inicio}`);
+          const appEnd = new Date(appStart.getTime() + app.duracao * 60000);
+
+          return start < appEnd && end > appStart;
+        });
+
+        const div = document.createElement("div");
+        div.className = "slot";
+        div.innerText = `${slotStart}`;
+
+        if (isBusy) {
+          div.style.background = "#7f1d1d";
+          div.innerText += " (ocupado)";
+        } else {
+          div.style.background = "#065f46";
+          div.innerText += " (livre)";
+
+          div.onclick = async () => {
+            const client = prompt("Nome do cliente:");
+
+            if (!client || client.trim() === "") {
+              alert("Nome inválido");
+              return;
+            }
+
+            try {
+              const response = await fetch(`${API_BASE}/agendamentos`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  barbeiro_id: Number(barber),
+                  cliente_nome: client.trim(),
+                  servico_id: Number(serviceId),
+                  data: date,
+                  horario_inicio: slotStart,
+                }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                const detail = data.detail;
+                const message =
+                  typeof detail === "string"
+                    ? detail
+                    : Array.isArray(detail)
+                      ? detail.map((item) => item.msg).join("; ")
+                      : detail?.message || "Não foi possível agendar";
+
+                throw new Error(message);
+              }
+
+              alert("Agendado!");
+              await generateSlots(
+                barber,
+                date,
+                duration,
+                serviceName,
+                serviceId,
+              );
+            } catch (error) {
+              alert(error.message);
+            }
+          };
+        }
+
+        slotsDiv.appendChild(div);
       }
-
-      const isBusy = appointments.some((app) => {
-        if (app.barber !== barber || app.date !== date) return false;
-
-        let appStart = new Date(`${app.date}T${app.start}:00`);
-        let appEnd = new Date(appStart.getTime() + app.duration * 60000);
-
-        return start < appEnd && end > appStart;
-      });
-
-      const div = document.createElement("div");
-      div.className = "slot";
-      div.innerText = `${pad(h)}:${pad(m)}`;
-
-      if (isBusy) {
-        div.style.background = "#7f1d1d";
-        div.innerText += " (ocupado)";
-      } else {
-        div.style.background = "#065f46";
-        div.innerText += " (livre)";
-
-        div.onclick = () => {
-          let client = prompt("Nome do cliente:");
-
-          if (!client || client.trim() === "") {
-            alert("Nome inválido");
-            return;
-          }
-
-          const updated = getAppointments();
-
-          updated.push({
-            barber,
-            date,
-            start: `${pad(h)}:${pad(m)}`,
-            duration,
-            service: serviceName,
-            client: client.trim(),
-          });
-
-          saveAppointments(updated);
-
-          alert("Agendado!");
-          loadAvailability();
-        };
-      }
-
-      slotsDiv.appendChild(div);
     }
+  } catch (error) {
+    console.error("Erro ao carregar horários:", error);
+    slotsDiv.innerHTML = "<p>Erro ao carregar horários.</p>";
   }
 }
 
@@ -106,118 +165,4 @@ function pad(n) {
   return n.toString().padStart(2, "0");
 }
 
-// opcional: manter cancelamento aqui também
-function cancelAppointment(barber, date, time) {
-  let appointments = getAppointments();
-
-  const index = appointments.findIndex(
-    (app) => app.barber === barber && app.date === date && app.start === time,
-  );
-
-  if (index !== -1) {
-    appointments.splice(index, 1);
-    saveAppointments(appointments);
-
-    alert("Agendamento cancelado!");
-    loadAvailability();
-  }
-}
-// ==========================
-// RANDOM API - AGENDAMENTOS AUTOMÁTICOS
-// ==========================
-
-async function generateFakeAppointments() {
-  // evita duplicar sempre que atualizar página
-  const alreadyGenerated = localStorage.getItem("fakeAppointmentsGenerated");
-
-  if (alreadyGenerated) return;
-
-  try {
-    // pega nomes aleatórios
-    const response = await fetch("https://randomuser.me/api/?results=20");
-
-    const data = await response.json();
-
-    const fakeUsers = data.results;
-
-    let appointments = getAppointments();
-
-    const barberIds = ["1", "2", "3", "4"];
-    const servicesIds = ["1", "2", "3"];
-
-    fakeUsers.forEach((user) => {
-      const barber = barberIds[Math.floor(Math.random() * barberIds.length)];
-
-      const serviceId =
-        servicesIds[Math.floor(Math.random() * servicesIds.length)];
-
-      const service = services[serviceId];
-
-      // próximos 7 dias
-      const randomDay = Math.floor(Math.random() * 7);
-
-      const dateObj = new Date();
-
-      dateObj.setDate(dateObj.getDate() + randomDay);
-
-      const date = dateObj.toISOString().split("T")[0];
-
-      // horários possíveis
-      const possibleHours = [
-        "09:00",
-        "09:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-        "16:00",
-        "16:30",
-        "17:00",
-      ];
-
-      const start =
-        possibleHours[Math.floor(Math.random() * possibleHours.length)];
-
-      // evita conflitos
-      const conflict = appointments.some((app) => {
-        if (app.barber !== barber || app.date !== date) return false;
-
-        let appStart = new Date(`${app.date}T${app.start}:00`);
-        let appEnd = new Date(appStart.getTime() + app.duration * 60000);
-
-        let newStart = new Date(`${date}T${start}:00`);
-        let newEnd = new Date(newStart.getTime() + service.duration * 60000);
-
-        return newStart < appEnd && newEnd > appStart;
-      });
-
-      if (!conflict) {
-        appointments.push({
-          barber,
-          date,
-          start,
-          duration: service.duration,
-          service: service.name,
-          client: `${user.name.first} ${user.name.last}`,
-        });
-      }
-    });
-
-    saveAppointments(appointments);
-
-    localStorage.setItem("fakeAppointmentsGenerated", "true");
-
-    console.log("Agendamentos fake gerados!");
-  } catch (error) {
-    console.error("Erro ao gerar agendamentos:", error);
-  }
-}
-
-// executa automaticamente
-generateFakeAppointments();
+loadBarbers();
