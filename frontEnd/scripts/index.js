@@ -32,23 +32,112 @@ async function loadBarbers() {
   }
 }
 
+function showPopup(message, type = "info", duration = 0) {
+  const overlay = document.getElementById("popupOverlay");
+  const box = document.getElementById("popupBox");
+  const icon = document.getElementById("popupIcon");
+  const msg = document.getElementById("popupMessage");
+  const close = document.getElementById("popupClose");
+
+  msg.textContent = message;
+  box.dataset.type = type;
+
+  const icons = {
+    success: "✅",
+    error: "❌",
+    info: "ℹ️",
+  };
+
+  icon.textContent = icons[type] || icons.info;
+  close.textContent = "Fechar";
+  overlay.classList.remove("hidden");
+
+  close.onclick = () => {
+    overlay.classList.add("hidden");
+  };
+
+  overlay.onclick = (event) => {
+    if (event.target === overlay) {
+      overlay.classList.add("hidden");
+    }
+  };
+
+  if (duration > 0) {
+    setTimeout(() => {
+      overlay.classList.add("hidden");
+    }, duration);
+  }
+}
+
+function promptClientName() {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("popupOverlay");
+    const box = document.getElementById("popupBox");
+    const icon = document.getElementById("popupIcon");
+    const msg = document.getElementById("popupMessage");
+    const close = document.getElementById("popupClose");
+
+    msg.innerHTML = "";
+    box.dataset.type = "info";
+    icon.textContent = "👤";
+    close.textContent = "Cancelar";
+
+    const label = document.createElement("label");
+    label.textContent = "Nome do cliente:";
+    label.style.display = "block";
+    label.style.marginBottom = "8px";
+    label.style.fontWeight = "600";
+    label.style.color = "#4b5563";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "clientNameInput";
+    input.className = "form-control";
+    input.style.marginBottom = "12px";
+    input.placeholder = "Digite o nome do cliente";
+
+    const confirmButton = document.createElement("button");
+    confirmButton.className = "popup-button";
+    confirmButton.textContent = "Confirmar";
+    confirmButton.style.marginLeft = "8px";
+
+    msg.appendChild(label);
+    msg.appendChild(input);
+    msg.appendChild(confirmButton);
+
+    close.onclick = () => {
+      overlay.classList.add("hidden");
+      resolve("");
+    };
+
+    confirmButton.onclick = () => {
+      const name = input.value.trim();
+      overlay.classList.add("hidden");
+      resolve(name);
+    };
+
+    overlay.classList.remove("hidden");
+    input.focus();
+  });
+}
+
 async function loadAvailability() {
   const barber = document.getElementById("barber").value;
   const serviceId = document.getElementById("service").value;
   const date = document.getElementById("date").value;
 
   if (!barber) {
-    alert("Escolha um barbeiro");
+    showPopup("Escolha um barbeiro.", "error");
     return;
   }
 
   if (!serviceId) {
-    alert("Escolha um serviço");
+    showPopup("Escolha um serviço.", "error");
     return;
   }
 
   if (!date) {
-    alert("Escolha uma data");
+    showPopup("Escolha uma data.", "error");
     return;
   }
 
@@ -102,10 +191,10 @@ async function generateSlots(barber, date, duration, serviceName, serviceId) {
           div.innerText += " (livre)";
 
           div.onclick = async () => {
-            const client = prompt("Nome do cliente:");
+            const client = await promptClientName();
 
             if (!client || client.trim() === "") {
-              alert("Nome inválido");
+              showPopup("Nome inválido.", "error");
               return;
             }
 
@@ -138,7 +227,7 @@ async function generateSlots(barber, date, duration, serviceName, serviceId) {
                 throw new Error(message);
               }
 
-              alert("Agendado!");
+              showPopup("Agendamento realizado com sucesso!", "success", 1800);
               await generateSlots(
                 barber,
                 date,
@@ -147,7 +236,7 @@ async function generateSlots(barber, date, duration, serviceName, serviceId) {
                 serviceId,
               );
             } catch (error) {
-              alert(error.message);
+              showPopup(error.message, "error");
             }
           };
         }

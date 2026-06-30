@@ -4,7 +4,7 @@ from jose import jwt
 
 CHAVE_SECRETA = "minha-chave-super-secreta"
 ALGORITMO = "HS256"
-MINUTOS_EXPIRACAO_TOKEN_ACESSO = 30
+MINUTOS_EXPIRACAO_TOKEN_ACESSO = 1
 
 
 # Geração token

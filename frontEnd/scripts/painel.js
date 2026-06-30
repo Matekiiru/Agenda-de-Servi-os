@@ -1,12 +1,117 @@
 const API_BASE = "http://localhost:8000";
 const barber = JSON.parse(localStorage.getItem("barberLogged"));
 const token = localStorage.getItem("accessToken");
+const loginTime = Number(localStorage.getItem("loginTime") || 0);
+const SESSION_LIMIT_MS = 60_000;
 
-if (!barber || !token) {
-  window.location.href = "login.html";
+function showPopup(message, type = "info", duration = 0) {
+  const overlay = document.getElementById("popupOverlay");
+  const box = document.getElementById("popupBox");
+  const icon = document.getElementById("popupIcon");
+  const msg = document.getElementById("popupMessage");
+  const close = document.getElementById("popupClose");
+
+  msg.textContent = message;
+  box.dataset.type = type;
+
+  const icons = {
+    success: "✅",
+    error: "❌",
+    info: "ℹ️",
+  };
+
+  icon.textContent = icons[type] || icons.info;
+  overlay.classList.remove("hidden");
+
+  close.onclick = () => {
+    overlay.classList.add("hidden");
+  };
+
+  overlay.onclick = (event) => {
+    if (event.target === overlay) {
+      overlay.classList.add("hidden");
+    }
+  };
+
+  if (duration > 0) {
+    setTimeout(() => {
+      overlay.classList.add("hidden");
+    }, duration);
+  }
 }
 
-document.getElementById("barberName").innerText = `Barbeiro: ${barber.name}`;
+function confirmPopup(message) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("popupOverlay");
+    const box = document.getElementById("popupBox");
+    const icon = document.getElementById("popupIcon");
+    const msg = document.getElementById("popupMessage");
+    const close = document.getElementById("popupClose");
+
+    msg.textContent = message;
+    box.dataset.type = "info";
+    icon.textContent = "❓";
+
+    close.textContent = "Cancelar";
+    close.onclick = () => {
+      overlay.classList.add("hidden");
+      resolve(false);
+    };
+
+    const confirmButton = document.createElement("button");
+    confirmButton.className = "popup-button";
+    confirmButton.style.marginLeft = "8px";
+    confirmButton.textContent = "Confirmar";
+
+    const existingButton = close;
+    existingButton.parentNode.insertBefore(
+      confirmButton,
+      existingButton.nextSibling,
+    );
+
+    confirmButton.onclick = () => {
+      overlay.classList.add("hidden");
+      confirmButton.remove();
+      close.textContent = "Fechar";
+      resolve(true);
+    };
+
+    overlay.classList.remove("hidden");
+  });
+}
+
+function checkSession() {
+  if (!barber || !token) {
+    showPopup("Faça login para acessar o painel.", "error");
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1000);
+    return false;
+  }
+
+  if (Date.now() - loginTime > SESSION_LIMIT_MS) {
+    localStorage.removeItem("barberLogged");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("loginTime");
+    showPopup("Sessão expirada. Faça login novamente.", "error");
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 5000);
+    return false;
+  }
+
+  return true;
+}
+
+if (checkSession()) {
+  document.getElementById("barberName").innerText = `Barbeiro: ${barber.name}`;
+}
+
+setInterval(() => {
+  if (!checkSession()) {
+    clearInterval(this);
+  }
+}, 1000);
 
 function calculateEnd(start, duration) {
   const [h, m] = start.split(":").map(Number);
@@ -79,7 +184,9 @@ async function loadAppointments() {
 }
 
 async function cancelAppointment(agendamentoId) {
-  if (!confirm("Deseja cancelar este agendamento?")) return;
+  const confirmCancel = confirm("Deseja cancelar este agendamento?");
+
+  if (!confirmCancel) return;
 
   try {
     const response = await fetch(`${API_BASE}/agendamentos/${agendamentoId}`, {
@@ -94,16 +201,25 @@ async function cancelAppointment(agendamentoId) {
       throw new Error(errorData.detail || "Não foi possível cancelar");
     }
 
+    showPopup("Agendamento cancelado com sucesso.", "success", 1500);
     await loadAppointments();
   } catch (error) {
-    alert(error.message);
+    showPopup(error.message, "error");
   }
 }
 
 function logout() {
   localStorage.removeItem("barberLogged");
   localStorage.removeItem("accessToken");
-  window.location.href = "login.html";
+  localStorage.removeItem("loginTime");
+
+  showPopup("Logout realizado com sucesso.", "success", 2000);
+
+  setTimeout(() => {
+    window.location.href = "login.html";
+  }, 2000);
 }
 
-loadAppointments();
+if (barber && token && Date.now() - loginTime <= SESSION_LIMIT_MS) {
+  loadAppointments();
+}

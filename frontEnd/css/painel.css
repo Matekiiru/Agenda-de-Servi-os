@@ -132,6 +132,66 @@ body::before {
   color: #ccc;
 }
 
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-overlay.hidden {
+  display: none;
+}
+
+.popup-box {
+  width: min(360px, calc(100vw - 48px));
+  background: #fffaf2;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 45px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+.popup-box[data-type="success"] {
+  border-top: 8px solid #10b981;
+}
+
+.popup-box[data-type="error"] {
+  border-top: 8px solid #ef4444;
+}
+
+.popup-box[data-type="info"] {
+  border-top: 8px solid #f59e0b;
+}
+
+.popup-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.popup-message {
+  font-size: 1.05rem;
+  color: #4b5563;
+  margin-bottom: 18px;
+}
+
+.popup-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #9b6928;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.popup-button:hover {
+  background: #7c4d1c;
+}
+
 @media (max-width: 768px) {
   nav {
     justify-content: center;
