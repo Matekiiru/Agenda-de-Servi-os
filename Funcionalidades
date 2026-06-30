@@ -1,0 +1,3 @@
+RF1: O app deve permitir que o cliente faça um agendamento com o nome e o serviço desejado pelo cliente
+RF2: O app deve permitir que o cliente defina a data e o horario desejado para ralizar o agendamento do serviço
+RF2:O app deve permitir que o Autonomo veja a lista dos agendamentos realizados no app pelos clientes
