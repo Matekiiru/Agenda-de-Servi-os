@@ -1,4 +1,0 @@
-from .agendamento_repository import AgendamentoRepository
-from .barbeiro_repository import BarbeiroRepository
-from .cliente_repository import ClienteRepository
-from .servico_repository import ServicoRepository
