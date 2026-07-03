@@ -1,8 +1,10 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from core.database import get_banco
+from schemas.agendamento import AgendamentoCreate, AgendamentoResponse
 from services.agendamento_service import AgendamentoService
 
 roteador = APIRouter(
@@ -11,34 +13,20 @@ roteador = APIRouter(
 )
 
 
-class AgendamentoCreate(BaseModel):
-    barbeiro_id: int
-    cliente_nome: str
-    servico_id: int
-    data: str
-    horario_inicio: str
-
-
-@roteador.get("")
+@roteador.get("", response_model=list[AgendamentoResponse])
 def listar_agendamentos(
     barbeiro_id: int | None = Query(default=None),
-    data: str | None = Query(default=None),
+    data: date | None = Query(default=None),
     db: Session = Depends(get_banco),
 ):
     service = AgendamentoService(db)
     return service.listar_agendamentos(barbeiro_id=barbeiro_id, data=data)
 
 
-@roteador.post("")
+@roteador.post("", response_model=AgendamentoResponse)
 def criar_agendamento(payload: AgendamentoCreate, db: Session = Depends(get_banco)):
     service = AgendamentoService(db)
-    return service.criar_agendamento(
-        barbeiro_id=payload.barbeiro_id,
-        cliente_nome=payload.cliente_nome,
-        servico_id=payload.servico_id,
-        data=payload.data,
-        horario_inicio=payload.horario_inicio,
-    )
+    return service.criar_agendamento(payload=payload)
 
 
 @roteador.delete("/{agendamento_id}")

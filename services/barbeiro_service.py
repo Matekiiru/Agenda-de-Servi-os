@@ -1,4 +1,5 @@
 from repositories.barbeiro_repository import BarbeiroRepository
+from schemas.barbeiro import BarbeiroResponse
 
 
 class BarbeiroService:
@@ -7,4 +8,7 @@ class BarbeiroService:
 
     def listar_barbeiros(self):
         barbeiros = self.barbeiro_repository.listar_todos()
-        return [{"id": barbeiro.id, "nome": barbeiro.nome} for barbeiro in barbeiros]
+        return [
+            BarbeiroResponse(id=barbeiro.id, nome=barbeiro.nome, usuario=barbeiro.usuario)
+            for barbeiro in barbeiros
+        ]
