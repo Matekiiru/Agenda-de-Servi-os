@@ -1,9 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = (
-    "postgresql://postgres:1234@localhost:5432/barbearia"
-)
+DATABASE_URL = os.environ["DATABASE_URL"]
+
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace(
+        "postgres://",
+        "postgresql://",
+        1,
+    )
 
 motor = create_engine(
     DATABASE_URL,
