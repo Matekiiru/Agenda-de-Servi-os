@@ -4,15 +4,22 @@ const token = localStorage.getItem("accessToken");
 const loginTime = Number(localStorage.getItem("loginTime") || 0);
 const SESSION_LIMIT_MS = 60_000;
 
-function showPopup(message, type = "info", duration = 0) {
+function showPopup(message, type = "info", duration = 0, options = {}) {
   const overlay = document.getElementById("popupOverlay");
   const box = document.getElementById("popupBox");
   const icon = document.getElementById("popupIcon");
   const msg = document.getElementById("popupMessage");
   const close = document.getElementById("popupClose");
 
+  const {
+    buttonText = "Fechar",
+    onClose = null,
+    closeOnOverlay = true,
+  } = options;
+
   msg.textContent = message;
   box.dataset.type = type;
+  close.textContent = buttonText;
 
   const icons = {
     success: "✅",
@@ -25,11 +32,17 @@ function showPopup(message, type = "info", duration = 0) {
 
   close.onclick = () => {
     overlay.classList.add("hidden");
+    if (onClose) {
+      onClose();
+    }
   };
 
   overlay.onclick = (event) => {
-    if (event.target === overlay) {
+    if (event.target === overlay && closeOnOverlay) {
       overlay.classList.add("hidden");
+      if (onClose) {
+        onClose();
+      }
     }
   };
 
@@ -93,10 +106,13 @@ function checkSession() {
     localStorage.removeItem("barberLogged");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("loginTime");
-    showPopup("Sessão expirada. Faça login novamente.", "error");
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 5000);
+    showPopup("Sessão expirada. Faça login novamente.", "error", 0, {
+      buttonText: "Confirmar",
+      closeOnOverlay: false,
+      onClose: () => {
+        window.location.href = "login.html";
+      },
+    });
     return false;
   }
 
