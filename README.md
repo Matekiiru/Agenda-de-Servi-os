@@ -21,9 +21,9 @@ Funcionalidades principais:
 - Front-end estático com páginas HTML em `index.html`, `inicio.html`, `login.html`, `painel.html` e `agenda.html`.
 
 Prints / visualização:
-
-- As páginas de interface estão disponíveis diretamente nos arquivos HTML do projeto.
-- O arquivo `Whireframe.png` também pode ser usado como referência de layout.
+*
+*
+*
 
 ## Principais rotas da API
 
