@@ -21,7 +21,7 @@ Funcionalidades principais:
 - Front-end estático com páginas HTML em `index.html`, `inicio.html`, `login.html`, `painel.html` e `agenda.html`.
 
 Prints / visualização:
-![Pagina Inicial](Agenda-de-Servi-os\Prints\Captura de tela 2026-07-08 203600.png)
+![Pagina Inicial](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203600.png)
 
 
 
