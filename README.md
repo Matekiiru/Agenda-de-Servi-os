@@ -22,7 +22,9 @@ Funcionalidades principais:
 
 Prints / visualização:
 ![Pagina Inicial](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203600.png)
-
+![Agendamento](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203617.png)
+![Login](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203816.png)
+![Painel](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203843.png)
 
 
 ## Principais rotas da API
