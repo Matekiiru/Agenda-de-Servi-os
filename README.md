@@ -21,7 +21,7 @@ Funcionalidades principais:
 - Front-end estático com páginas HTML em `index.html`, `inicio.html`, `login.html`, `painel.html` e `agenda.html`.
 
 Prints / visualização:
-*![Pagina Inicial](/Prints/Captura de tela 2026-07-08 203600.png)
+*![Pagina Inicial](Agenda-de-Servi-os\Prints\Captura de tela 2026-07-08 203600.png)
 *
 *
 
