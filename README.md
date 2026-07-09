@@ -22,19 +22,19 @@ Funcionalidades principais:
 
 Prints / visualização:
 
-##Pagina inicial
+## Pagina inicial
 
 ![Pagina Inicial](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203600.png)
 
-##Agendamento
+## Agendamento
 
 ![Agendamento](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203617.png)
 
-##Login
+## Login
 
 ![Login](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203816.png)
 
-##Painel
+## Painel
 
 ![Painel](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203843.png)
 
