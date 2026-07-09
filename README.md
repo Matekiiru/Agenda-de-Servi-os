@@ -22,6 +22,11 @@ Funcionalidades principais:
 
 Prints / visualização:
 
+<<<<<<< HEAD
+-
+-
+-
+=======
 ## Pagina inicial
 
 ![Pagina Inicial](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203600.png)
@@ -38,6 +43,7 @@ Prints / visualização:
 
 ![Painel](https://github.com/Matekiiru/Agenda-de-Servi-os/blob/main/Prints/Captura%20de%20tela%202026-07-08%20203843.png)
 
+>>>>>>> e79b1fcdd5eae70bfb2e8ccb9214792a0338575c
 
 ## Principais rotas da API
 
@@ -64,24 +70,16 @@ git clone <URL_DO_REPOSITORIO>
 cd "Agenda-de-Servi-os"
 ```
 
-### 3. Criar o ambiente virtual
+### 3. Criar o ambiente Conda
 
 ```powershell
-py -m venv venv
+conda create -n barbearia python=3.11 -y
 ```
 
-### 4. Ativar o ambiente virtual
-
-No PowerShell:
+### 4. Ativar o ambiente Conda
 
 ```powershell
-venv\Scripts\Activate.ps1
-```
-
-No Prompt de Comando (cmd):
-
-```cmd
-venv\Scripts\activate.bat
+conda activate barbearia
 ```
 
 ### 5. Instalar as bibliotecas necessárias
