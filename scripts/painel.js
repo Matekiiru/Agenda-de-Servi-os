@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "http://3.85.94.102:8000";
 const barber = JSON.parse(localStorage.getItem("barberLogged"));
 const token = localStorage.getItem("accessToken");
 const loginTime = Number(localStorage.getItem("loginTime") || 0);
