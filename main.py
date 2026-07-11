@@ -34,7 +34,7 @@ app.include_router(agendamentos_roteador)
 
 @app.get("/")
 def root():
-    return {g
+    return {
         "application": "MiniAPI",
         "version": "1.0.0",
         "saude": "/saude",
