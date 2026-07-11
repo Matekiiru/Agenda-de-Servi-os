@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "http://3.85.94.102:8000";
 
 const services = {
   1: { duration: 30, name: "Corte" },
