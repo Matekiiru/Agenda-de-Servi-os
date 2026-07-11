@@ -1,4 +1,4 @@
-# Agenda de Serviços - Barbearia
+****# Agenda de Serviços - Barbearia
 
 ## Sobre o App
 
@@ -119,3 +119,76 @@ py -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 - Se quiser usar o front-end estático, abra os arquivos HTML no navegador ou crie um servidor estático simples.
 
 Bom trabalho! Se precisar, posso ajudar a gerar um arquivo `requirements.txt` ou a ajustar a configuração do banco.
+
+```
+Agenda-de-Servi-os
+├─ agenda.html
+├─ core
+│  ├─ auth.py
+│  ├─ database.py
+│  ├─ jwt.py
+│  └─ seguranca.py
+├─ css
+│  ├─ agenda.css
+│  ├─ imagens
+│  │  └─ photo-1536520002442-39764a41e987.avif
+│  ├─ inicio.css
+│  ├─ login.css
+│  ├─ painel.css
+│  └─ style.css
+├─ dump-barbearia-202607101919
+├─ Funcionalidades
+├─ imagens
+│  └─ photo-1536520002442-39764a41e987.avif
+├─ index.html
+├─ inicio.html
+├─ login.html
+├─ main.py
+├─ models
+│  ├─ agendamento.py
+│  ├─ barbeiro.py
+│  ├─ cliente.py
+│  └─ servico.py
+├─ models.txt
+├─ painel.html
+├─ Prints
+│  ├─ Captura de tela 2026-07-08 203600.png
+│  ├─ Captura de tela 2026-07-08 203617.png
+│  ├─ Captura de tela 2026-07-08 203649.png
+│  ├─ Captura de tela 2026-07-08 203719.png
+│  ├─ Captura de tela 2026-07-08 203738.png
+│  ├─ Captura de tela 2026-07-08 203816.png
+│  ├─ Captura de tela 2026-07-08 203843.png
+│  ├─ Captura de tela 2026-07-08 203909.png
+│  └─ Captura de tela 2026-07-08 204304.png
+├─ README.md
+├─ repositories
+│  ├─ agendamento_repository.py
+│  ├─ barbeiro_repository.py
+│  ├─ cliente_repository.py
+│  ├─ servico_repository.py
+│  └─ __init__.py
+├─ rotas
+│  ├─ agendamentos.py
+│  ├─ barbeiros.py
+│  ├─ saude.py
+│  └─ usuarios.py
+├─ schemas
+│  ├─ agendamento.py
+│  ├─ barbeiro.py
+│  ├─ cliente.py
+│  ├─ servico.py
+│  └─ __init__.py
+├─ scripts
+│  ├─ agenda.js
+│  ├─ index.js
+│  ├─ login.js
+│  └─ painel.js
+├─ services
+│  ├─ agendamento_service.py
+│  ├─ auth_service.py
+│  ├─ barbeiro_service.py
+│  └─ __init__.py
+└─ Whireframe.png
+
+```

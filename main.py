@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from core.database import Base
 from core.database import motor
@@ -15,10 +16,10 @@ Base.metadata.create_all(bind=motor)
 app = FastAPI(
     title="Mini API estudantes",
     description="Primeira API do curso de programador WEB",
-    version="1.0.0"
+    version="1.0.0",
 )
 
-app.add_middleware( 
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
@@ -30,11 +31,15 @@ app.include_router(usuarios_roteador)
 app.include_router(barbeiros_roteador)
 app.include_router(agendamentos_roteador)
 
+
 @app.get("/")
 def root():
     return {
         "application": "MiniAPI",
         "version": "1.0.0",
         "saude": "/saude",
-        "saude_banco": "/saude/db"
+        "saude_banco": "/saude/db",
     }
+
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

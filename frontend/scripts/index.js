@@ -1,4 +1,4 @@
-const API_BASE = "http://3.85.94.102:8000";
+const API_BASE = "http://localhost:8000";
 
 const services = {
   1: { duration: 30, name: "Corte" },
@@ -152,7 +152,7 @@ async function generateSlots(barber, date, duration, serviceName, serviceId) {
 
   try {
     const response = await fetch(
-      `${API_BASE}/agendamentos?barbeiro_id=${barber}&data=${date}`,
+      `${API_BASE}/agendamentos?barbeiro_id=${barber}&data=${date}`
     );
     const appointments = await response.json();
 
@@ -221,8 +221,8 @@ async function generateSlots(barber, date, duration, serviceName, serviceId) {
                   typeof detail === "string"
                     ? detail
                     : Array.isArray(detail)
-                      ? detail.map((item) => item.msg).join("; ")
-                      : detail?.message || "Não foi possível agendar";
+                    ? detail.map((item) => item.msg).join("; ")
+                    : detail?.message || "Não foi possível agendar";
 
                 throw new Error(message);
               }
@@ -233,7 +233,7 @@ async function generateSlots(barber, date, duration, serviceName, serviceId) {
                 date,
                 duration,
                 serviceName,
-                serviceId,
+                serviceId
               );
             } catch (error) {
               showPopup(error.message, "error");

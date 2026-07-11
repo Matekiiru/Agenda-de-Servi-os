@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql://postgres:1234@localhost:5432/barbearia"
 
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL environment variable is not set.")
@@ -15,16 +15,9 @@ if DATABASE_URL.startswith("postgres://"):
         1,
     )
 
-motor = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True
-)
+motor = create_engine(DATABASE_URL, pool_pre_ping=True)
 
-SessaoLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=motor
-)
+SessaoLocal = sessionmaker(autocommit=False, autoflush=False, bind=motor)
 
 Base = declarative_base()
 
