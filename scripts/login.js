@@ -88,8 +88,7 @@ async function login() {
       throw new Error(data.detail || "Login inválido");
     }
 
-    const expiresAt =
-      getTokenExpiresAt(data.access_token) || Date.now() + 60_000;
+    const expiresAt = getTokenExpiresAt(data.access_token);
 
     localStorage.setItem("barberLogged", JSON.stringify(data.barbeiro));
     localStorage.setItem("accessToken", data.access_token);
