@@ -1,3 +1,29 @@
+function decodeJwtPayload(token) {
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) return null;
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "=",
+    );
+    const decoded = atob(padded);
+
+    return JSON.parse(decoded);
+  } catch (error) {
+    console.error("Erro ao decodificar o token:", error);
+    return null;
+  }
+}
+
+function getTokenExpiresAt(token) {
+  const payload = decodeJwtPayload(token);
+  if (!payload || !payload.exp) return null;
+
+  return Number(payload.exp) * 1000;
+}
+
 function showPopup(message, type = "info", duration = 0) {
   const overlay = document.getElementById("popupOverlay");
   const box = document.getElementById("popupBox");
@@ -62,9 +88,13 @@ async function login() {
       throw new Error(data.detail || "Login inválido");
     }
 
+    const expiresAt =
+      getTokenExpiresAt(data.access_token) || Date.now() + 60_000;
+
     localStorage.setItem("barberLogged", JSON.stringify(data.barbeiro));
     localStorage.setItem("accessToken", data.access_token);
     localStorage.setItem("loginTime", Date.now().toString());
+    localStorage.setItem("tokenExpiresAt", expiresAt.toString());
 
     showPopup("Login realizado com sucesso!", "success", 2000);
 

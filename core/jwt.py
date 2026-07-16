@@ -9,7 +9,7 @@ MINUTOS_EXPIRACAO_TOKEN_ACESSO = 1
 
 # Geração token
 def criar_token(dados: dict):
-    dados_token = dados.copy()  
+    dados_token = dados.copy()
 
     expira = datetime.utcnow() + timedelta(minutes=MINUTOS_EXPIRACAO_TOKEN_ACESSO)
 
@@ -20,5 +20,10 @@ def criar_token(dados: dict):
         CHAVE_SECRETA,
         algorithm=ALGORITMO,
     )
+
+
+def obter_tempo_expiracao_ms():
+    return MINUTOS_EXPIRACAO_TOKEN_ACESSO * 60_000
+
 
 # Verificação token

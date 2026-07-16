@@ -1,8 +1,37 @@
 const API_BASE = "http://3.85.94.102:8000";
-const barber = JSON.parse(localStorage.getItem("barberLogged"));
+const barber = JSON.parse(localStorage.getItem("barberLogged") || "null");
 const token = localStorage.getItem("accessToken");
 const loginTime = Number(localStorage.getItem("loginTime") || 0);
-const SESSION_LIMIT_MS = 60_000;
+const storedExpiresAt = Number(localStorage.getItem("tokenExpiresAt") || 0);
+const sessionExpiresAt = getTokenExpiresAt(token) || storedExpiresAt || 0;
+
+function decodeJwtPayload(token) {
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) return null;
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "=",
+    );
+    const decoded = atob(padded);
+
+    return JSON.parse(decoded);
+  } catch (error) {
+    console.error("Erro ao decodificar o token:", error);
+    return null;
+  }
+}
+
+function getTokenExpiresAt(token) {
+  if (!token) return null;
+
+  const payload = decodeJwtPayload(token);
+  if (!payload || !payload.exp) return null;
+
+  return Number(payload.exp) * 1000;
+}
 
 function showPopup(message, type = "info", duration = 0, options = {}) {
   const overlay = document.getElementById("popupOverlay");
@@ -102,10 +131,11 @@ function checkSession() {
     return false;
   }
 
-  if (Date.now() - loginTime > SESSION_LIMIT_MS) {
+  if (!sessionExpiresAt || Date.now() > sessionExpiresAt) {
     localStorage.removeItem("barberLogged");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("loginTime");
+    localStorage.removeItem("tokenExpiresAt");
     showPopup("Sessão expirada. Faça login novamente.", "error", 0, {
       buttonText: "Confirmar",
       closeOnOverlay: false,
@@ -228,6 +258,7 @@ function logout() {
   localStorage.removeItem("barberLogged");
   localStorage.removeItem("accessToken");
   localStorage.removeItem("loginTime");
+  localStorage.removeItem("tokenExpiresAt");
 
   showPopup("Logout realizado com sucesso.", "success", 2000);
 
@@ -236,6 +267,6 @@ function logout() {
   }, 2000);
 }
 
-if (barber && token && Date.now() - loginTime <= SESSION_LIMIT_MS) {
+if (barber && token && sessionExpiresAt && Date.now() <= sessionExpiresAt) {
   loadAppointments();
 }
