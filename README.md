@@ -117,5 +117,3 @@ py -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 - O token JWT é gerado em `core/jwt.py` com tempo de expiração curto (1 minuto).
 - O login de barbeiro depende de um registro existente em tabela `barbeiros`.
 - Se quiser usar o front-end estático, abra os arquivos HTML no navegador ou crie um servidor estático simples.
-
-Bom trabalho! Se precisar, posso ajudar a gerar um arquivo `requirements.txt` ou a ajustar a configuração do banco.
